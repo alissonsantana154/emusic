@@ -3,6 +3,7 @@ import PreviousIcon from "./Icones/PreviousIcon";
 import PlayIcon from "./Icones/PlayIcon";
 import PauseIcon from "./Icones/PauseIcon";
 import NextIcon from "./Icones/NextIcon";
+import { formatTime } from "@/utils/formatTime";
 
 export default function ControlMusic() {
   const [musicPlayList, setMusicPlayList] = useState([]);
@@ -112,7 +113,7 @@ export default function ControlMusic() {
 
       <div className="self-stretch justify-start items-center gap-8 inline-flex">
         <div className="text-center text-xs text-white font-semibold leading-tight tracking-wide">
-          <p>"00:00"</p>
+          <p>{audioRef.current ? formatTime(duration) : "00:00"}</p>
         </div>
 
         <div
@@ -125,7 +126,7 @@ export default function ControlMusic() {
         </div>
 
         <div className="text-center text-xs text-white font-semibold leading-tight tracking-wide">
-          "00:00"
+          {audioRef.current ? formatTime(currentTime) : "00:00"}
         </div>
       </div>
     </div>
