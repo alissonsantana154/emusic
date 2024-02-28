@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PreviousIcon from "./Icones/PreviousIcon";
 import PlayIcon from "./Icones/PlayIcon";
 import PauseIcon from "./Icones/PauseIcon";
@@ -12,7 +12,66 @@ export default function ControlMusic() {
   const [duration, setDuration] = useState(0);
   const [musicIndex, setMusicIndex] = useState(0);
 
-  
+  useEffect(() => {
+    window.electronAPI.ReciveFromElectron("music-playable", (event, music) => {
+      setMusicPlayList([...musicPlayList, music])
+      if (!audioRef.current.currentSrc) {
+        setAudio(`/musicas/${music}`)
+        audioRef.current.load()
+        setCurrentTime(audioRef.current.currentTime)
+      }
+    })
+  }, [musicPlayList])
+
+  useEffect(() => {
+    if (audioRef.current){
+      audioRef.current.addEventListener("loadedmetadata", () => {
+        setDuration(audioRef.current.duration)
+      })
+
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.removeEventListener("loadedmetadata", () => {})
+        }
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (audioRef.current) {
+      const musicDuration = audioRef.current.duration
+      const interval = setInterval(() => {
+        if (!audioRef.current.paused) {
+          const time = audioRef.current.currentTime
+          setCurrentTime(time)
+          const progressBar = document.getElementById("progress-bar")
+          progressBar.style.width = `${(time / musicDuration) * 100}%`
+        }
+      }, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [])
+
+  function handlePlay() {
+    if (audio != null) {
+      audioRef.current.play()
+      document.getElementById("play").classList.remove("flex")
+      document.getElementById("play").classList.add("hidden")
+      document.getElementById("pause").classList.add("flex")
+      document.getElementById("pause").classList.remove("hidden")
+    }
+  }
+
+  function handlePause() {
+    if (audio != null) {
+      audioRef.current.pause()
+      document.getElementById("pause").classList.remove("flex")
+      document.getElementById("pause").classList.add("hidden")
+      document.getElementById("play").classList.add("flex")
+      document.getElementById("play").classList.remove("hidden")
+    }
+  }
+
   return (
     <div className="w-96 h-14 px-8 flex-col justify-center items-center gap-4 inline-flex">
       <div className="justify-center items-center gap-8 inline-flex">
@@ -27,12 +86,12 @@ export default function ControlMusic() {
           className="flex w-4 h-4 justify-start items-start gap-2.5"
         >
           <div className="w-4 h-4 relative">
-            <PlayIcon />
+            <PlayIcon onClick={handlePlay}/>
           </div>
         </div>
 
-        <audio >
-          <source type="audio/mp3" />
+        <audio ref={audioRef}>
+          <source src={audio} type="audio/mp3" />
         </audio>
 
         <div
@@ -40,7 +99,7 @@ export default function ControlMusic() {
           className="hidden w-4 h-4 justify-start items-start gap-2.5"
         >
           <div className="w-4 h-4 relative">
-            <PauseIcon />
+            <PauseIcon onClick={handlePause} />
           </div>
         </div>
 
