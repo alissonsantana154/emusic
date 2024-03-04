@@ -73,6 +73,20 @@ export default function ControlMusic() {
     }
   }
 
+  function handleProgressBarClick(event) {
+    if (audioRef.current) {
+      const progressBar = event.currentTarget;
+      const clickPosition = event.nativeEvent.offsetX;
+      const totalWidth = progressBar.offsetWidth; 
+      const percentage = clickPosition / totalWidth;
+  
+      if (isFinite(audioRef.current.duration)) {
+        const time = audioRef.current.duration * percentage;
+        audioRef.current.currentTime = time;
+      }
+    }
+  }
+
   return (
     <div className="w-96 h-14 px-8 flex-col justify-center items-center gap-4 inline-flex">
       <div className="justify-center items-center gap-8 inline-flex">
@@ -118,10 +132,14 @@ export default function ControlMusic() {
 
         <div
           className="w-96 h-1 relative bg-neutral-600 rounded-full"
+          onClick={handleProgressBarClick}
         >
           <div
             id="progress-bar"
             className="h-1 w-1 rounded-full bg-white absolute top-1/2 transform -translate-y-1/2"
+            style={{
+              left: `${audioRef.current ? (audioRef.current.currentTime / audioRef.current.duration) * 100 : 0}%`
+            }}
           />
         </div>
 
