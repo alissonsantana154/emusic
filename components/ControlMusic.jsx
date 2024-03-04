@@ -87,12 +87,32 @@ export default function ControlMusic() {
     }
   }
 
+  function handlePrevios() {
+    if (musicIndex > 0) {
+      setMusicIndex(musicIndex - 1)
+      setAudio(`/musicas/${musicPlayList[musicIndex - 1]}`)
+      audioRef.current.load()
+      audioRef.current.play()
+      setCurrentTime(audioRef.current.currentTime)
+    }
+  }
+
+  function handleNext() {
+    if (musicIndex < musicPlayList.length - 1) {
+      setMusicIndex(musicIndex + 1)
+      setAudio(`/musicas/${musicPlayList[musicIndex + 1]}`)
+      audioRef.current.load()
+      audioRef.current.play()
+      setCurrentTime(audioRef.current.currentTime)
+    }
+  }
+
   return (
     <div className="w-96 h-14 px-8 flex-col justify-center items-center gap-4 inline-flex">
       <div className="justify-center items-center gap-8 inline-flex">
         <div className="w-4 h-4 justify-start items-start gap-2.5 flex">
           <div className="w-4 h-4 relative">
-            <PreviousIcon />
+            <PreviousIcon onClick={handlePrevios}/>
           </div>
         </div>
         <div
@@ -105,7 +125,7 @@ export default function ControlMusic() {
           </div>
         </div>
 
-        <audio ref={audioRef}>
+        <audio ref={audioRef} onEnded={handleNext}>
           <source src={audio} type="audio/mp3" />
         </audio>
 
@@ -120,7 +140,7 @@ export default function ControlMusic() {
 
         <div className="w-4 h-4 justify-start items-start gap-2.5 flex">
           <div className="w-4 h-4 relative">
-            <NextIcon />
+            <NextIcon onClick={handleNext}/>
           </div>
         </div>
       </div>
